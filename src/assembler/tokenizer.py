@@ -5,20 +5,18 @@ class Tokenizer():
         self.lines = lines
         self.line = 0
         self.pos = 0
-        self.prev_pos = -1
         self.next = ''
         self.compute_next()
     
     def get_info(self):
         if len(self.lines) == 0: return ''
         elif self.line < len(self.lines):
-            return ':' + str(self.line) + '\n\t' + self.lines[self.line] + '\n\t' + (self.prev_pos - 1) * ' ' + '^'
+            return ':' + str(self.line) + '\n\t' + self.lines[self.line] + '\n\t' + (self.pos - 1) * ' ' + '^'
         return ':unknown'
 
     def compute_next(self):
         if len(self.lines) == 0: return
 
-        self.prev_pos = self.pos
         curr_line = self.lines[self.line]
         self.next = ''
 

@@ -111,25 +111,38 @@ class Parser():
     def parse_R(self):
         op = self.tk.consume()
         # maybe we can check if it's int or not first
+        rs = self.tk.consume()
+        if not is_reg(rs): raise Exception(f'Invalid register {self.err_info()}')
+        rt = self.tk.consume()
+        if not is_reg(rt): raise Exception(f'Invalid register {self.err_info()}')
         rd = self.tk.consume()
         if not is_reg(rd): raise Exception(f'Invalid register {self.err_info()}')
-        rs1 = self.tk.consume()
-        if not is_reg(rs1): raise Exception(f'Invalid register {self.err_info()}')
-        rs2 = self.tk.consume()
-        if not is_reg(rs2): raise Exception(f'Invalid register {self.err_info()}')
-        return R_ins(op, int(rd), int(rs1), int(rs2))
+        return R_ins(op, int(rs), int(rt), int(rd))
     
     # I -> Icmd <reg> <reg> var
     # Icmd -> lw | sw | beq
     # var -> <label> | <number>
     def parse_I(self):
         op = self.tk.consume()
-        rd = self.tk.consume()
-        if not is_reg(rd): raise Exception(f'Invalid register {self.err_info()}')
-        rs1 = self.tk.consume()
-        if not is_reg(rs1): raise Exception(f'Invalid register {self.err_info()}')
-        imm = int(self.tk.consume()) if self.tk.peek().isnumeric() else self.tk.consume()
-        return I_ins(op, int(rd), int(rs1), imm)
+        rs = self.tk.consume()
+        if not is_reg(rs): raise Exception(f'Invalid register {self.err_info()}')
+        rt = self.tk.consume()
+        if not is_reg(rt): raise Exception(f'Invalid register {self.err_info()}')
+
+        var = self.tk.consume()
+        if op == 'beq' and var in self.var_map: # pre set label value
+            imm = self.var_map[var] - self.tk.line - 1 # TODO maybe -1 is not necessary 
+            return I_ins(op, int(rs), int(rt), imm)
+        
+        if var.isnumeric():
+            v = int(var)
+            if v >= -32768 and v <= 32767:
+                imm = v
+                return I_ins(op, int(rs), int(rt), imm)
+            else: raise Exception(f'Immediate exceed limit {self.err_info()}')
+
+        return I_ins(op, int(rs), int(rt), var)
+
 
     # J -> jalr <reg> <reg>
     def parse_J(self):
@@ -148,9 +161,9 @@ class TestParser(unittest.TestCase):
             parser = Parser(lines)
 
         p = parser.parse()
-        print(p.var_map)
-        p.execute()
-        print(p.var_map)
+        res = p.execute()
+        # TODO is assignment exampel wrong? 
+        self.assertEqual(res, [8454140, 9043971, 655361, 16842754, 16842749, 29360128, 25165824, 5, -1, 2])
     
     def test_parser_err(self):
         with open("tests/t2.s") as f:
