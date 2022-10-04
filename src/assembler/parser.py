@@ -22,30 +22,42 @@ def is_instruction(w: str):
 def is_label(w: str):
     return w not in reserve
 
+def is_reg(w: str):
+    if w.isnumeric():
+        v = int(w)
+        return v >= 0 and v <= 7
+    return False
+
 class Program():
     def __init__(self, var_map: dict[str, int]):
         self.statement: list[Statement] = []
-        self.assignments: list[Statement] = []
+        self.priority: set[int] = set()
         self.var_map = var_map
     
     def append(self, statement: Statement):
         self.statement.append(statement)
         if isinstance(statement, Assignment):
-            self.assignments.append(statement)
+            self.priority.add(len(self.statement) - 1)
 
     def execute(self):
-        for s in self.assignments:
-           s.evaluate(self.var_map)
+        res = [0] * len(self.statement)
         
-        res = []
-        for s in self.statement:
-            res.append(s.evaluate(self.var_map))
-        return s
+        for i in self.priority:
+            res[i] = self.statement[i].evaluate(self.var_map)
+
+        for i, node in enumerate(self.statement):
+            if i in self.priority: pass
+            res[i] = node.evaluate(self.var_map)
+            
+        return res
 
 class Parser():
     def __init__(self, lines: list[str]):
         self.tk = Tokenizer(lines)
         self.var_map: dict[str, int] = {}
+
+    def err_info(self):
+        return 'at' + self.tk.get_info() 
 
     # program -> statement+
     def parse(self):
@@ -61,8 +73,8 @@ class Parser():
     def parse_statement(self):
         if is_label(self.tk.peek()): 
             label = self.tk.consume()
-            if len(label) > 6: raise Exception("label length should not exceeds 6")
-            if label in self.var_map.keys(): raise Exception(f"duplicated label {label}")
+            if len(label) > 6: raise Exception(f'Label length should not exceeds 6 {self.err_info()}')
+            if label in self.var_map.keys(): raise Exception(f"duplicated label {self.err_info()}")
 
             # assignment -> <label> .fill <number>
             if self.tk.peek() == '.fill':
@@ -92,35 +104,43 @@ class Parser():
             return self.parse_J()
         elif is_O(top):
             return O_ins(self.tk.consume())
-        else: raise Exception("Something wrong!")
+        else: raise Exception(f'Something wrong! {self.err_info()}')
 
-    # R -> Rcmd <number> <number> <number>
+    # R -> Rcmd <reg> <reg> <reg>
     # Rcmd -> add | nand
     def parse_R(self):
         op = self.tk.consume()
         # maybe we can check if it's int or not first
-        rd = int(self.tk.consume())
-        rs1 = int(self.tk.consume())
-        rs2 = int(self.tk.consume())
-        return R_ins(op, rd, rs1, rs2)
+        rd = self.tk.consume()
+        if not is_reg(rd): raise Exception(f'Invalid register {self.err_info()}')
+        rs1 = self.tk.consume()
+        if not is_reg(rs1): raise Exception(f'Invalid register {self.err_info()}')
+        rs2 = self.tk.consume()
+        if not is_reg(rs2): raise Exception(f'Invalid register {self.err_info()}')
+        return R_ins(op, int(rd), int(rs1), int(rs2))
     
-    # I -> Icmd <number> <number> var
+    # I -> Icmd <reg> <reg> var
     # Icmd -> lw | sw | beq
     # var -> <label> | <number>
     def parse_I(self):
         op = self.tk.consume()
-        rd = int(self.tk.consume())
-        rs1 = int(self.tk.consume())
+        rd = self.tk.consume()
+        if not is_reg(rd): raise Exception(f'Invalid register {self.err_info()}')
+        rs1 = self.tk.consume()
+        if not is_reg(rs1): raise Exception(f'Invalid register {self.err_info()}')
         imm = int(self.tk.consume()) if self.tk.peek().isnumeric() else self.tk.consume()
-        return I_ins(op, rd, rs1, imm)
+        return I_ins(op, int(rd), int(rs1), imm)
 
-    # J -> jalr <number> <number>
+    # J -> jalr <reg> <reg>
     def parse_J(self):
         self.tk.consume() # consume jalr
-        rd = int(self.tk.consume())
-        rs1 = int(self.tk.consume())
-        return J_ins(rd, rs1)
+        rs = self.tk.consume()
+        if not is_reg(rs): raise Exception(f'Invalid register {self.err_info()}') 
+        rd = self.tk.consume()
+        if not is_reg(rd): raise Exception(f'Invalid register {self.err_info()}') 
+        return J_ins(int(rs), int(rd))
     
+
 class TestParser(unittest.TestCase):
     def test_parser(self):
         with open("tests/t1.s") as f:
@@ -131,6 +151,15 @@ class TestParser(unittest.TestCase):
         print(p.var_map)
         p.execute()
         print(p.var_map)
+    
+    def test_parser_err(self):
+        with open("tests/t2.s") as f:
+            lines = f.read().splitlines()
+            parser = Parser(lines)
+
+        with self.assertRaisesRegex(Exception, 'Invalid register'):
+            parser.parse()
+        
 
 
 if __name__ == '__main__':
