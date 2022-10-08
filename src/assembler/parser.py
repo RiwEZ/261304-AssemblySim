@@ -20,7 +20,7 @@ def is_instruction(w: str):
     return is_R(w) or is_I(w) or is_J(w) or is_O(w)
 
 def is_label(w: str):
-    return w not in reserve
+    return w not in reserve and not w[0].isnumeric() and len(w) <= 6
 
 def is_reg(w: str):
     if w.isnumeric():
@@ -69,8 +69,10 @@ class Parser():
 
         return program
 
-    # statement -> cmd | assignment
+    # statement -> cmd | assignment [*]'\n'
     def parse_statement(self):
+        curr_line = self.tk.line
+
         if is_label(self.tk.peek()): 
             label = self.tk.consume()
             if len(label) > 6: raise Exception(f'Label length should not exceeds 6 {self.err_info()}')
@@ -84,14 +86,18 @@ class Parser():
                     v = self.var_map[v]
                 else:
                     v = int(v) # maybe we can check for error if this is not int
+                
+                if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
                 return Assignment(label, v)
             
             # cmd_l -> <label> | ε
-            self.var_map[label] = self.tk.line # pre set label value for cmd label
+            self.var_map[label] = curr_line # pre set label value for cmd label
 
         # cmd -> cmd_l ins
         if is_instruction(self.tk.peek()):
-            return self.parse_ins()
+            statement = self.parse_ins()
+            if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
+            return statement
 
     # ins -> R | I | J | O
     def parse_ins(self):
@@ -162,8 +168,8 @@ class TestParser(unittest.TestCase):
 
         p = parser.parse()
         res = p.execute()
-        # TODO is assignment exampel wrong? 
-        self.assertEqual(res, [8454140, 9043971, 655361, 16842754, 16842749, 29360128, 25165824, 5, -1, 2])
+        # TODO: check if assignment examples is wrong?
+        self.assertEqual(res, [8454149, 9043971, 655361, 16842754, 16842749, 29360128, 25165824, 5, -1, 2])
     
     def test_parser_err(self):
         with open("tests/t2.s") as f:
@@ -173,7 +179,6 @@ class TestParser(unittest.TestCase):
         with self.assertRaisesRegex(Exception, 'Invalid register'):
             parser.parse()
         
-
 
 if __name__ == '__main__':
     unittest.main()

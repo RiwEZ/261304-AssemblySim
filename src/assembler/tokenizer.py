@@ -16,6 +16,9 @@ class Tokenizer():
 
     def compute_next(self):
         if len(self.lines) == 0: return
+        if self.line > len(self.lines) - 1:
+            self.next = ''
+            return
 
         curr_line = self.lines[self.line]
         self.next = ''
@@ -44,6 +47,11 @@ class Tokenizer():
         temp = self.next
         self.compute_next()
         return temp
+
+    def consume_line(self):
+        self.pos = 0
+        self.line += 1
+        self.compute_next()
     
  
 # Testing codes
@@ -58,7 +66,7 @@ class TestParser(unittest.TestCase):
         for _ in range(10):
             arr.append(tk.consume())
         
-        self.assertEqual(arr, ['lw', '0', '1', 'five', 'lw', '1', '2', '3', 'start', 'add'])
+        self.assertEqual(arr, ['lw', '0', '1', 'five', 'load', 'reg1', 'with', '5', '(uses', 'symbolic'])
         return 0
 
 if __name__ == '__main__':
