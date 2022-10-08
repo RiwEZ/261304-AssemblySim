@@ -11,7 +11,7 @@
     9) (multiplication) labeled "mcand" และ "mplier" (lower-case) เป็นที่ที่ ตัวเลข 2 ตัว อยู่
    10) (combination) ควรจะรับค่า n และ r จาก Memory ที่ location ที่มี Label เป็น n และ r และ ผลลัพธ์ควรจะเก็บที่  register 3
 '''
-import os
+from instruction import *
 
 class Simulator:
     NUMMEMORY = 65536
@@ -45,11 +45,15 @@ class Simulator:
         f.close()
         
     def run_program(self):
-        pass
+        while(1):
+            opcode, t, ins = get_opcode(self.mem[self.pc])
+            if ins == 'halt':
+                break
+            self.pc += 1
     
     
     
-    
+# testing
 if __name__ == '__main__':
     com = Simulator()
     com.read_machinecode('tests/test.bin')
