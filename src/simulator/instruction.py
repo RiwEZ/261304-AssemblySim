@@ -37,3 +37,61 @@ def get_opcode(machinecode: int):
         t_format = 'o'
         ins = 'noop'
     return opcode, t_format, ins
+
+def execute_instruction(state):
+    machinecode = state.mem[state.pc]
+    opcode, t, ins = get_opcode(machinecode)
+    if ins == 'halt':
+        return False
+
+    reg_a = (machinecode >> 19) & 0b0111    # bits 19-21
+    reg_b = (machinecode >> 16) & 0b0111    # bits 16-18
+
+    match t:
+        case 'r':        
+            dest_reg = machinecode & 0b0111         # bits 0-2
+            execute_r_type(state, reg_a, reg_b, dest_reg, ins)
+        case 'i':
+            offset_field = machinecode & 0x0FFFF     # bits 0-15
+            execute_i_type(state, reg_a, reg_b, offset_field, ins)
+        case 'j':
+            execute_j_type(state, reg_a, reg_b, ins)
+
+    return True
+
+def execute_r_type(state, reg_a, reg_b, dest_reg, ins):
+    reg = state.reg
+    if ins == 'add':
+        reg[dest_reg] = reg[reg_a] + reg[reg_b]
+    elif ins == 'nand':
+        reg[dest_reg] = ~(reg[reg_a] & reg[reg_b])
+
+def execute_i_type(state, reg_a, reg_b, offset_field, ins):
+    mem = state.mem
+    reg = state.reg
+    offset_field = sign_extend(offset_field)
+    mem_addr = offset_field + reg[reg_a]
+
+    if ins == 'lw':
+        reg[reg_b] = mem[mem_addr]
+    elif ins == 'sw':
+        mem[mem_addr] = reg[reg_b]
+    elif ins == 'beq':
+        if reg[reg_a] == reg[reg_b]:
+            state.pc = state.pc + offset_field
+
+def execute_j_type(state, reg_a, reg_b, ins):
+    reg = state.reg
+
+    if ins == 'jalr':
+        reg[reg_b] = state.pc + 1
+        if reg_a == reg_b:
+            state.pc = state.pc + 1
+        else:
+            state.pc = state.pc + reg[reg_a]
+
+def sign_extend(num: int):
+    # convert a 16-bit number into a 32-bit integer 
+    if num & (1 << 15):
+         num -= (1 << 16)
+    return num

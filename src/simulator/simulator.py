@@ -11,6 +11,7 @@
     9) (multiplication) labeled "mcand" และ "mplier" (lower-case) เป็นที่ที่ ตัวเลข 2 ตัว อยู่
    10) (combination) ควรจะรับค่า n และ r จาก Memory ที่ location ที่มี Label เป็น n และ r และ ผลลัพธ์ควรจะเก็บที่  register 3
 '''
+from dataclasses import dataclass
 from instruction import *
 
 class Simulator:
@@ -18,38 +19,51 @@ class Simulator:
     NUMREGS = 8
     MAXLINELENGTH = 1000
     
+    @dataclass
+    class State:
+        reg: list[int]
+        mem: list[int]
+        pc: int
+
+        def __init__(self, NUMREGS, NUMMEMORY):
+            self.reg = [0] * NUMREGS
+            self.mem = [0] * NUMMEMORY
+            self.pc = 0
+        
+
     def __init__(self):
-        self.reg = [0] * self.NUMREGS
-        self.mem = [0] * self.NUMMEMORY
+        self.state = self.State(self.NUMREGS, self.NUMMEMORY)
         self.numMemory = 0
-        self.pc = 0
         
     def print_state(self):
-        print('\n@@@\nstate:\n')
-        print('\tpc %d\n' % self.pc)
-        print('\tmemory:\n')
+        print('\n@@@\nstate:')
+        print('\tpc %d' % self.state.pc)
+        print('\tmemory:')
         for i in range(0, self.numMemory, 1):
-            print('\t\tmem[ %d ] %d\n' % (i, self.mem[i]))
-        print('\tregisters:\n')
+            print('\t\tmem[ %d ] %d' % (i, self.state.mem[i]))
+        print('\tregisters:')
         for i in range(0, self.NUMREGS, 1):
-            print('\t\treg[ %d ] %d\n' % (i, self.reg[i]))
-        print('end state\n')
+            print('\t\treg[ %d ] %d' % (i, self.state.reg[i]))
+        print('end state')
         
     def read_machinecode(self,path):
         with open(path) as f:
             lines = f.readlines()
         for line in lines:
-            self.mem[self.numMemory] = int(line)
-            print('memory[%d]=%d\n' % (self.numMemory, self.mem[self.numMemory]))
+            self.state.mem[self.numMemory] = int(line)
+            print('memory[%d]=%d' % (self.numMemory, self.state.mem[self.numMemory]))
             self.numMemory += 1
+        print()
         f.close()
         
     def run_program(self):
-        while(1):
-            opcode, t, ins = get_opcode(self.mem[self.pc])
-            if ins == 'halt':
-                break
-            self.pc += 1
+        isRunning = True
+        while(isRunning):
+            self.print_state()
+            isRunning = execute_instruction(self.state)
+            self.state.pc += 1
+
+        self.print_state()
     
     
     
@@ -57,4 +71,4 @@ class Simulator:
 if __name__ == '__main__':
     com = Simulator()
     com.read_machinecode('tests/test.bin')
-    com.print_state()
+    com.run_program()
