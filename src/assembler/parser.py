@@ -20,7 +20,7 @@ def is_instruction(w: str):
     return is_R(w) or is_I(w) or is_J(w) or is_O(w)
 
 def is_label(w: str):
-    return w not in reserve and not w[0].isnumeric() and len(w) <= 6
+    return w not in reserve and not w[0].isnumeric()
 
 def is_reg(w: str):
     if w.isnumeric():
@@ -98,6 +98,8 @@ class Parser():
             statement = self.parse_ins()
             if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
             return statement
+        else:
+            raise Exception(f'Instruction expected {self.err_info()}')
 
     # ins -> R | I | J | O
     def parse_ins(self):
@@ -184,9 +186,8 @@ class TestParser(unittest.TestCase):
         with open("tests/t3.s") as f:
             lines = f.read().splitlines()
             parser = Parser(lines)
-        p = parser.parse()
-        self.assertRaisesRegex(Exception, 'Invalid register')
+        with self.assertRaisesRegex(Exception, 'Instruction expected'):
+            parser.parse()
         
-
 if __name__ == '__main__':
     unittest.main()
