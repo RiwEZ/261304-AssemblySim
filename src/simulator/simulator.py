@@ -24,22 +24,24 @@ class Simulator:
         reg: list[int]
         mem: list[int]
         pc: int
+        numMemory: int
 
         def __init__(self, NUMREGS, NUMMEMORY):
             self.reg = [0] * NUMREGS
             self.mem = [0] * NUMMEMORY
             self.pc = 0
+            self.numMemory = 0
         
 
     def __init__(self):
         self.state = self.State(self.NUMREGS, self.NUMMEMORY)
-        self.numMemory = 0
+        self.ins_executed = 0
         
     def print_state(self):
         print('\n@@@\nstate:')
         print('\tpc %d' % self.state.pc)
         print('\tmemory:')
-        for i in range(0, self.numMemory, 1):
+        for i in range(0, self.state.numMemory, 1):
             print('\t\tmem[ %d ] %d' % (i, self.state.mem[i]))
         print('\tregisters:')
         for i in range(0, self.NUMREGS, 1):
@@ -50,9 +52,9 @@ class Simulator:
         with open(path) as f:
             lines = f.readlines()
         for line in lines:
-            self.state.mem[self.numMemory] = int(line)
-            print('memory[%d]=%d' % (self.numMemory, self.state.mem[self.numMemory]))
-            self.numMemory += 1
+            self.state.mem[self.state.numMemory] = int(line)
+            print('memory[%d]=%d' % (self.state.numMemory, self.state.mem[self.state.numMemory]))
+            self.state.numMemory += 1
         print()
         f.close()
         
@@ -62,7 +64,8 @@ class Simulator:
             self.print_state()
             isRunning = execute_instruction(self.state)
             self.state.pc += 1
-
+            self.ins_executed += 1
+        print('machine halted\ntotal of %d instructions executed\nfinal state of machine:' % self.ins_executed)
         self.print_state()
     
     
