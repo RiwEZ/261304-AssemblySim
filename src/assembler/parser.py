@@ -162,7 +162,7 @@ class Parser():
 
 class TestParser(unittest.TestCase):
     def test_parser(self):
-        with open("tests/t1.s") as f:
+        with open("/home/pooh/Documents/ComArch/Project-Final/261304-AssemblySim/tests/t1.s") as f:
             lines = f.read().splitlines()
             parser = Parser(lines)
 
@@ -178,6 +178,14 @@ class TestParser(unittest.TestCase):
 
         with self.assertRaisesRegex(Exception, 'Invalid register'):
             parser.parse()
+
+    def test_parser_exception(self):
+        # This test may cause memory leak !!!
+        with open("tests/t3.s") as f:
+            lines = f.read().splitlines()
+            parser = Parser(lines)
+        p = parser.parse()
+        print(p.execute())
         
 
 if __name__ == '__main__':
