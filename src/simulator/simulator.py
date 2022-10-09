@@ -68,10 +68,11 @@ class Simulator:
         print('machine halted\ntotal of %d instructions executed\nfinal state of machine:' % self.ins_executed)
         self.print_state()
     
-    
+    def run_sim(self, path):
+        self.read_machinecode(path)
+        self.run_program()
     
 # testing
 if __name__ == '__main__':
     com = Simulator()
-    com.read_machinecode('tests/test.bin')
-    com.run_program()
+    com.run_sim('tests/test.bin')

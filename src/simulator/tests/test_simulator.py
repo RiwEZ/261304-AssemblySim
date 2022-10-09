@@ -1,0 +1,27 @@
+import io
+import unittest
+import unittest.mock
+
+from simulator import Simulator
+
+'''
+    UnitTests for Simulator
+    asserting equal between the console output and the expected output
+    use `python -m unittest discover` command at root to run tests
+'''
+# use python -m unittest discover at root to run tests
+class TestSimulator(unittest.TestCase):
+
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def assert_stdout(self, path, expected_output, mock_stdout):
+        com = Simulator()
+        com.run_sim(path)
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+
+    def read_file(self, path):
+        with open(path) as f:
+            return f.read()
+
+    def test_example(self):
+        expected_output = '../../tests/output_test.txt'
+        self.assert_stdout('../../tests/test.bin', self.read_file(expected_output))
