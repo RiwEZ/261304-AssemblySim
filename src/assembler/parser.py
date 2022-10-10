@@ -200,6 +200,7 @@ class TestParser(unittest.TestCase):
 
     def test_parser_fill(self):
         # Instruction expected rise when no label
+        # fill should be able to get label
         with open("tests/t5.s") as f:
             lines = f.read().splitlines()
             parser = Parser(lines)
