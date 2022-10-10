@@ -198,5 +198,13 @@ class TestParser(unittest.TestCase):
         with self.assertRaisesRegex(Exception, 'Label expected'):
             parser.parse()
 
+    def test_parser_fill(self):
+
+        with open("tests/t5.s") as f:
+            lines = f.read().splitlines()
+            parser = Parser(lines)
+        # with self.assertRaisesRegex(Exception, 'Label expected'):
+            parser.parse()
+
 if __name__ == '__main__':
     unittest.main()
