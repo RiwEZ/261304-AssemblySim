@@ -181,13 +181,22 @@ class TestParser(unittest.TestCase):
         with self.assertRaisesRegex(Exception, 'Invalid register'):
             parser.parse()
 
-    def test_parser_exception(self):
+    def test_parser_instruction(self):
         # This test may cause memory leak !!!
         with open("tests/t3.s") as f:
             lines = f.read().splitlines()
             parser = Parser(lines)
         with self.assertRaisesRegex(Exception, 'Instruction expected'):
             parser.parse()
-        
+
+    def test_parser_label(self):
+        # Label should not be number and instruction should exception when argument not match
+
+        with open("tests/t4.s") as f:
+            lines = f.read().splitlines()
+            parser = Parser(lines)
+        with self.assertRaisesRegex(Exception, 'Label expected'):
+            parser.parse()
+
 if __name__ == '__main__':
     unittest.main()
