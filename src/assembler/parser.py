@@ -2,7 +2,7 @@ import unittest
 from asm_ast import *
 from tokenizer import Tokenizer
 
-reserve = set(['add', 'nand', 'lw', 'sw', 'beq', 'jalr', 'noop', 'halt'])
+reserve = set(['add', 'nand', 'lw', 'sw', 'beq', 'jalr', 'noop', 'halt', '.fill'])
 
 def is_O(w: str):
     return w == 'noop' or w == 'halt'
@@ -31,24 +31,15 @@ def is_reg(w: str):
 class Program():
     def __init__(self, var_map: dict[str, int]):
         self.statement: list[Statement] = []
-        self.priority: set[int] = set()
         self.var_map = var_map
     
     def append(self, statement: Statement):
         self.statement.append(statement)
-        if isinstance(statement, Assignment):
-            self.priority.add(len(self.statement) - 1)
 
     def execute(self):
         res = [0] * len(self.statement)
-        
-        for i in self.priority:
-            res[i] = self.statement[i].evaluate(self.var_map)
-
         for i, node in enumerate(self.statement):
-            if i in self.priority: pass
             res[i] = node.evaluate(self.var_map)
-            
         return res
 
 class Parser():
@@ -64,36 +55,36 @@ class Parser():
         if not self.tk.has_next(): raise Exception("at least 1 statement needed")
         program = Program(self.var_map)
         top = self.tk.peek()
-        while (is_label(top) or is_instruction(top)) and self.tk.has_next():
+        while (is_label(top) or is_instruction(top) or top == '.fill') and self.tk.has_next():
             program.append(self.parse_statement())
 
+        if self.tk.has_next():
+            raise Exception(f"Something went wrong {self.err_info()}")
         return program
 
-    # statement -> cmd | assignment [*]'\n'
+    # statement -> label cmd [*]'\n'
+    # label -> <label> | ε
+    # cmd -> ins | '.fill' <label> | <number>
     def parse_statement(self):
         curr_line = self.tk.line
 
         if is_label(self.tk.peek()): 
             label = self.tk.consume()
             if len(label) > 6: raise Exception(f'Label length should not exceeds 6 {self.err_info()}')
-            if label in self.var_map.keys(): raise Exception(f"duplicated label {self.err_info()}")
-
-            # assignment -> <label> .fill <number>
-            if self.tk.peek() == '.fill':
-                self.tk.consume()
-                v = self.tk.consume()
-                if is_label(v) and v in self.var_map.keys():
-                    v = self.var_map[v]
-                else:
-                    v = int(v) # maybe we can check for error if this is not int
-                
-                if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
-                return Assignment(label, v)
-            
-            # cmd_l -> <label> | ε
+            if label in self.var_map.keys(): raise Exception(f"Duplicated label {self.err_info()}")
             self.var_map[label] = curr_line # pre set label value for cmd label
+   
+        if self.tk.peek() == '.fill':
+            self.tk.consume()
+            v = self.tk.consume()
+            if v.isnumeric() or (v[0] == '-' and v[1:len(v)].isnumeric()):
+                v = int(v)             
+            elif not is_label(v): 
+                raise Exception(f".fill should be followed by <label> or <number> {self.err_info()}")
 
-        # cmd -> cmd_l ins
+            if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
+            return Fill(v)
+
         if is_instruction(self.tk.peek()):
             statement = self.parse_ins()
             if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
@@ -112,7 +103,7 @@ class Parser():
             return self.parse_J()
         elif is_O(top):
             return O_ins(self.tk.consume())
-        else: raise Exception(f'Something wrong! {self.err_info()}')
+        else: raise Exception(f'Something went wrong! {self.err_info()}')
 
     # R -> Rcmd <reg> <reg> <reg>
     # Rcmd -> add | nand
@@ -147,7 +138,7 @@ class Parser():
             if v >= -32768 and v <= 32767:
                 imm = v
                 return I_ins(op, int(rs), int(rt), imm)
-            else: raise Exception(f'Immediate exceed limit {self.err_info()}')
+            else: raise Exception(f'Offset field exceed limit {self.err_info()}')
 
         return I_ins(op, int(rs), int(rt), var)
 
@@ -170,8 +161,7 @@ class TestParser(unittest.TestCase):
 
         p = parser.parse()
         res = p.execute()
-        # TODO: check if assignment examples is wrong?
-        self.assertEqual(res, [8454149, 9043971, 655361, 16842754, 16842749, 29360128, 25165824, 5, -1, 2])
+        self.assertEqual(res, [8454151, 9043971, 655361, 16842754, 16842749, 29360128, 25165824, 5, -1, 2])
     
     def test_parser_err(self):
         with open("tests/t2.s") as f:
@@ -195,7 +185,7 @@ class TestParser(unittest.TestCase):
         with open("tests/t4.s") as f:
             lines = f.read().splitlines()
             parser = Parser(lines)
-        with self.assertRaisesRegex(Exception, 'Label expected'):
+        with self.assertRaisesRegex(Exception, 'Something went wrong'):
             parser.parse()
 
     def test_parser_fill(self):
@@ -207,4 +197,4 @@ class TestParser(unittest.TestCase):
             parser.parse()
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

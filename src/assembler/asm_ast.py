@@ -6,14 +6,18 @@ class Statement(ABC):
     def evaluate(self, var_map: dict[str, int]):
         return 0
 
-class Assignment(Statement):
-    def __init__(self, var: str, val: int):
-        self.var = var
-        self.val = val
+class Fill(Statement):
+    def __init__(self, val):
+        self.val = val # str | int
     
     def evaluate(self, var_map: dict[str, int]):
-        var_map[self.var] = self.val
-        return self.val
+        if type(self.val) == int:
+            return self.val
+        elif type(self.val) == str:
+            return var_map[self.val]
+        else:
+            raise Exception(f"Something wrong on: .fill {self.v}")
+
 
 class R_ins(Statement):
     def __init__(self, op: str, rs: int, rt: int, rd: int):
@@ -50,7 +54,10 @@ class I_ins(Statement):
             imm = var_map[self.var]
         elif type(self.var) == int:
             imm = self.var
-        else: raise Exception('I_ins immediate is invalid')
+        else: 
+            if type(self.var) != int: raise Exception('I_ins immediate is not int')
+            else: raise Exception('I_ins label cannot be found')
+
         
         if imm < 0:
             # convert to sign imm
