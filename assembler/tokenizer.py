@@ -6,10 +6,13 @@ class Tokenizer():
         self.next = ''
         self.compute_next()
     
-    def get_info(self):
+    def get_info(self, w):
         if len(self.lines) == 0: return ''
         elif self.line < len(self.lines):
-            return ':' + str(self.line) + '\n\t' + self.lines[self.line] + '\n\t' + (self.pos - 1) * ' ' + '^'
+            info = self.lines[self.line]
+            info = info.replace(w, '\x1b[0;37;41m' + w + '\x1b[0m', 1)
+
+            return ':' + str(self.line + 1) + '\n\t' + info
         return ':unknown'
 
     def compute_next(self):
