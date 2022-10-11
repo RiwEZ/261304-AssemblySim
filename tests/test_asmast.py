@@ -16,9 +16,9 @@ class TestParser(unittest.TestCase):
 
     def test_I_ins(self):
         var_map = {}
-        self.assertEqual(I_ins('beq', 0, 1, 2).evaluate(var_map), 16842754)
-        self.assertEqual(I_ins('beq', 0, 0, -3).evaluate(var_map), 16842749)
-        self.assertEqual(I_ins('lw', 0, 1, 5).evaluate(var_map), 8454149)
+        self.assertEqual(I_ins('beq', 0, 1, 2, 0).evaluate(var_map), 16842754)
+        self.assertEqual(I_ins('beq', 0, 0, -3, 0).evaluate(var_map), 16842749)
+        self.assertEqual(I_ins('lw', 0, 1, 5, 0).evaluate(var_map), 8454149)
 
     def test_R_ins(self):
         var_map = {}

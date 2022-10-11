@@ -39,28 +39,32 @@ class R_ins(Statement):
         return a | b | c | d
 
 class I_ins(Statement):
-    def __init__(self, op: str, rs: int, rt: int, var):
+    def __init__(self, op: str, rs: int, rt: int, var, line: int):
         self.op = op
         self.rs = rs
         self.rt = rt    
         self.var = var # str | int
+        self.line = line
     
     def evaluate(self, var_map: dict[str, int]):
         b = self.rs << 19
         c = self.rt << 16
         
         if type(self.var) == str and self.var in var_map.keys():
-            imm = var_map[self.var]
+            if self.line == 0:
+                offset = var_map[self.var]
+            else:
+                offset = var_map[self.var] - self.line - 1
         elif type(self.var) == int:
-            imm = self.var
+            offset = self.var
         else: 
             if type(self.var) != int: raise Exception('I_ins immediate is not int')
             else: raise Exception('I_ins label cannot be found')
 
         
-        if imm < 0:
+        if offset < 0:
             # convert to sign imm
-            temp = list(bin(imm).removeprefix('-0b'))
+            temp = list(bin(offset).removeprefix('-0b'))
             for i, w in enumerate(temp):
                 if w == '1': temp[i] = '0'
                 else: temp[i] = '1'
@@ -69,7 +73,7 @@ class I_ins(Statement):
             temp = ''.join(temp)
             d = int(temp, 2) + 1
         else: 
-            d = imm
+            d = offset
         
         if self.op == 'lw':
             a = 0b010 << 22

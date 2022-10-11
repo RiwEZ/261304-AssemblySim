@@ -121,25 +121,27 @@ class Parser():
     # Icmd -> lw | sw | beq
     # var -> <label> | <number>
     def parse_I(self):
+        curr_line = self.tk.line
         op = self.tk.consume()
         rs = self.tk.consume()
         if not is_reg(rs): raise Exception(f'Invalid register {self.err_info(rs)}')
         rt = self.tk.consume()
         if not is_reg(rt): raise Exception(f'Invalid register {self.err_info(rt)}')
-
-        var = self.tk.consume()
-        if op == 'beq' and var in self.var_map: # pre set label value
-            imm = self.var_map[var] - self.tk.line - 1 # TODO maybe -1 is not necessary 
-            return I_ins(op, int(rs), int(rt), imm)
+    
+        var = self.tk.consume() 
         
-        if var.isnumeric():
+        if is_label(var):
+            return I_ins(op, int(rs), int(rt), var, curr_line)
+
+        elif var.isnumeric():
             v = int(var)
             if v >= -32768 and v <= 32767:
-                imm = v
-                return I_ins(op, int(rs), int(rt), imm)
+                offset = v
+                return I_ins(op, int(rs), int(rt), offset, curr_line)
             else: raise Exception(f'Offset field exceed limit {self.err_info(var)}')
+        else:
+            raise Exception(f'Somethine went wrong {self.err_info(var)}')
 
-        return I_ins(op, int(rs), int(rt), var)
 
 
     # J -> jalr <reg> <reg>
