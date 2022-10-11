@@ -1,0 +1,1 @@
+Use `unittest` cli to do testing e.g. `python -m unittest discover -v`

@@ -1,8 +1,6 @@
-import unittest
-
 class Tokenizer():
     def __init__(self, lines: list[str]):
-        self.lines = lines
+        self.lines = [l for l in lines if l != '']
         self.line = 0
         self.pos = 0
         self.next = ''
@@ -54,20 +52,3 @@ class Tokenizer():
         self.compute_next()
     
  
-# Testing codes
-class TestParser(unittest.TestCase):
-    def test_tokenizer(self):
-        with open("tests/t1.s") as f:
-            lines = f.read().splitlines()
-            tk = Tokenizer(lines)
-        
-        self.assertEqual(tk.line, 0)
-        arr = []
-        for _ in range(10):
-            arr.append(tk.consume())
-        
-        self.assertEqual(arr, ['lw', '0', '1', 'five', 'load', 'reg1', 'with', '5', '(uses', 'symbolic'])
-        return 0
-
-if __name__ == '__main__':
-    unittest.main()
