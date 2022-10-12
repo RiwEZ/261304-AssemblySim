@@ -3,7 +3,6 @@ import argparse
 import os
 import sys
 
-# examples on how to use this `python .\main.py .\tests\files\t2.s`
 def main():
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument('path', metavar='path', type=str, help='the path to assembly *.s file')
