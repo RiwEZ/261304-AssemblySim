@@ -132,7 +132,6 @@ class Parser():
         
         if is_label(var):
             return I_ins(op, int(rs), int(rt), var, curr_line)
-
         elif var.isnumeric():
             v = int(var)
             if v >= -32768 and v <= 32767:

@@ -51,10 +51,10 @@ class I_ins(Statement):
         c = self.rt << 16
         
         if type(self.var) == str and self.var in var_map.keys():
-            if self.line == 0:
-                offset = var_map[self.var]
-            else:
+            if self.op == 'beq' and self.line > 0:
                 offset = var_map[self.var] - self.line - 1
+            else:
+                offset = var_map[self.var]
         elif type(self.var) == int:
             offset = self.var
         else: 
