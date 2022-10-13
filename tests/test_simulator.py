@@ -2,7 +2,7 @@ import io
 import unittest
 import unittest.mock
 
-from simulator import Simulator
+from simulator.simulator import Simulator
 
 '''
     UnitTests for Simulator
@@ -23,5 +23,6 @@ class TestSimulator(unittest.TestCase):
             return f.read()
 
     def test_example(self):
-        expected_output = '../../tests/output_test.txt'
-        self.assert_stdout('../../tests/test.bin', self.read_file(expected_output))
+        expected_output = 'tests/files/output_sim_example.txt'
+        self.maxDiff = None
+        self.assert_stdout('tests/files/test_sim_example.bin', self.read_file(expected_output))

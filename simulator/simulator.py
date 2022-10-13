@@ -12,7 +12,7 @@
    10) (combination) ควรจะรับค่า n และ r จาก Memory ที่ location ที่มี Label เป็น n และ r และ ผลลัพธ์ควรจะเก็บที่  register 3
 '''
 from dataclasses import dataclass
-from instruction import *
+from simulator.instruction import *
 
 class Simulator:
     NUMMEMORY = 65536
@@ -71,8 +71,3 @@ class Simulator:
     def run_sim(self, path):
         self.read_machinecode(path)
         self.run_program()
-    
-# testing
-if __name__ == '__main__':
-    com = Simulator()
-    com.run_sim('tests/test.bin')
