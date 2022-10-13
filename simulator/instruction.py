@@ -1,4 +1,4 @@
-from numpy import int32
+from simulator.int32 import int32
 import warnings
 warnings.filterwarnings("ignore")
 

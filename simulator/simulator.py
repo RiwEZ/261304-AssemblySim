@@ -13,7 +13,7 @@
 '''
 from dataclasses import dataclass
 from simulator.instruction import *
-from numpy import int32
+from simulator.int32 import int32
 
 class Simulator:
     NUMMEMORY = 65536
@@ -22,10 +22,10 @@ class Simulator:
     
     @dataclass
     class State:
-        reg: list[int32]
-        mem: list[int32]
-        pc: int32
-        numMemory: int32
+        reg: list[int]
+        mem: list[int]
+        pc: int
+        numMemory: int
 
         def __init__(self, NUMREGS, NUMMEMORY):
             self.reg = [int32(0)] * NUMREGS
@@ -43,10 +43,10 @@ class Simulator:
         print('\tpc %d' % self.state.pc)
         print('\tmemory:')
         for i in range(0, self.state.numMemory, 1):
-            print('\t\tmem[ %d ] %d' % (i, self.state.mem[i]))
+            print('\t\tmem[ %d ] %d' % (int32(i), int32(self.state.mem[int32(i)])))
         print('\tregisters:')
         for i in range(0, self.NUMREGS, 1):
-            print('\t\treg[ %d ] %d' % (i, self.state.reg[i]))
+            print('\t\treg[ %d ] %d' % (int32(i), int32(self.state.reg[int32(i)])))
         print('end state')
         
     def read_machinecode(self,path):
@@ -54,7 +54,7 @@ class Simulator:
             lines = f.readlines()
         for line in lines:
             self.state.mem[self.state.numMemory] = int32(line)
-            print('memory[%d]=%d' % (self.state.numMemory, self.state.mem[self.state.numMemory]))
+            print('memory[%d]=%d' % (int32(self.state.numMemory), int32(self.state.mem[int32(self.state.numMemory)])))
             self.state.numMemory += int32(1)
         print()
         f.close()
