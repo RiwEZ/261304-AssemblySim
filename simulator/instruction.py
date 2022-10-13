@@ -64,6 +64,8 @@ def execute_instruction(state):
     return True
 
 def execute_r_type(state, reg_a, reg_b, dest_reg, ins):
+    if dest_reg == 0: return
+
     reg = state.reg
     if ins == 'add':
         reg[dest_reg] = int32(reg[reg_a]) + int32(reg[reg_b])
@@ -77,6 +79,8 @@ def execute_i_type(state, reg_a, reg_b, offset_field, ins):
     mem_addr = int32(offset_field) + int32(reg[reg_a])
 
     if ins == 'lw':
+        if reg_b == 0: return
+
         reg[reg_b] = int32(mem[mem_addr])
     elif ins == 'sw':
         mem[mem_addr] = int32(reg[reg_b])
@@ -88,6 +92,8 @@ def execute_j_type(state, reg_a, reg_b, ins):
     reg = state.reg
 
     if ins == 'jalr':
+        if reg_b == 0: return
+
         reg[reg_b] = state.pc + int32(1)
         if reg_a == reg_b:
             state.pc = state.pc + int32(1)
