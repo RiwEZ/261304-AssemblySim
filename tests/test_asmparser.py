@@ -45,5 +45,11 @@ class TestParser(unittest.TestCase):
             parser = Parser(lines)
             parser.parse()
 
+    def test_parser_tab(self):
+        with open("tests/files/t11.s") as f:
+            lines = f.read().splitlines()
+            parser = Parser(lines)
+            parser.parse()
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
