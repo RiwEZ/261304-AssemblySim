@@ -19,10 +19,17 @@ def is_instruction(w: str):
     return is_R(w) or is_I(w) or is_J(w) or is_O(w)
 
 def is_label(w: str):
-    return w not in reserve and not w[0].isnumeric()
+    return w not in reserve and is_int(w) == False
+
+def is_int(w: str):
+    try:
+        int(w)
+        return True
+    except ValueError:
+        return False
 
 def is_reg(w: str):
-    if w.isnumeric():
+    if is_int(w):
         v = int(w)
         return v >= 0 and v <= 7
     return False
@@ -76,7 +83,7 @@ class Parser():
         if self.tk.peek() == '.fill':
             self.tk.consume()
             v = self.tk.consume()
-            if v.isnumeric() or (v[0] == '-' and v[1:len(v)].isnumeric()):
+            if is_int(v):
                 v = int(v)             
             elif not is_label(v): 
                 raise Exception(f".fill should be followed by <label> or <number> {self.err_info(v)}")
@@ -132,7 +139,7 @@ class Parser():
         
         if is_label(var):
             return I_ins(op, int(rs), int(rt), var, curr_line)
-        elif var.isnumeric():
+        elif is_int(var):
             v = int(var)
             if v >= -32768 and v <= 32767:
                 offset = v
