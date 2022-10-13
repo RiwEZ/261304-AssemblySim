@@ -13,6 +13,7 @@
 '''
 from dataclasses import dataclass
 from simulator.instruction import *
+from numpy import int32
 
 class Simulator:
     NUMMEMORY = 65536
@@ -21,21 +22,21 @@ class Simulator:
     
     @dataclass
     class State:
-        reg: list[int]
-        mem: list[int]
-        pc: int
-        numMemory: int
+        reg: list[int32]
+        mem: list[int32]
+        pc: int32
+        numMemory: int32
 
         def __init__(self, NUMREGS, NUMMEMORY):
-            self.reg = [0] * NUMREGS
-            self.mem = [0] * NUMMEMORY
-            self.pc = 0
-            self.numMemory = 0
+            self.reg = [int32(0)] * NUMREGS
+            self.mem = [int32(0)] * NUMMEMORY
+            self.pc = int32(0)
+            self.numMemory = int32(0)
         
 
     def __init__(self):
         self.state = self.State(self.NUMREGS, self.NUMMEMORY)
-        self.ins_executed = 0
+        self.ins_executed = int32(0)
         
     def print_state(self):
         print('\n@@@\nstate:')
@@ -52,9 +53,9 @@ class Simulator:
         with open(path) as f:
             lines = f.readlines()
         for line in lines:
-            self.state.mem[self.state.numMemory] = int(line)
+            self.state.mem[self.state.numMemory] = int32(line)
             print('memory[%d]=%d' % (self.state.numMemory, self.state.mem[self.state.numMemory]))
-            self.state.numMemory += 1
+            self.state.numMemory += int32(1)
         print()
         f.close()
         
@@ -63,8 +64,8 @@ class Simulator:
         while(isRunning):
             self.print_state()
             isRunning = execute_instruction(self.state)
-            self.state.pc += 1
-            self.ins_executed += 1
+            self.state.pc += int32(1)
+            self.ins_executed += int32(1)
         print('machine halted\ntotal of %d instructions executed\nfinal state of machine:' % self.ins_executed)
         self.print_state()
     

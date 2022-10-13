@@ -1,3 +1,7 @@
+from numpy import int32
+import warnings
+warnings.filterwarnings("ignore")
+
 def get_opcode(machinecode: int):
     """get opcode, type format, instruction name from machinecode
 
@@ -62,33 +66,33 @@ def execute_instruction(state):
 def execute_r_type(state, reg_a, reg_b, dest_reg, ins):
     reg = state.reg
     if ins == 'add':
-        reg[dest_reg] = reg[reg_a] + reg[reg_b]
+        reg[dest_reg] = int32(reg[reg_a]) + int32(reg[reg_b])
     elif ins == 'nand':
-        reg[dest_reg] = ~(reg[reg_a] & reg[reg_b])
+        reg[dest_reg] = ~(int32(reg[reg_a]) & int32(reg[reg_b]))
 
 def execute_i_type(state, reg_a, reg_b, offset_field, ins):
     mem = state.mem
     reg = state.reg
     offset_field = sign_extend(offset_field)
-    mem_addr = offset_field + reg[reg_a]
+    mem_addr = int32(offset_field) + int32(reg[reg_a])
 
     if ins == 'lw':
-        reg[reg_b] = mem[mem_addr]
+        reg[reg_b] = int32(mem[mem_addr])
     elif ins == 'sw':
-        mem[mem_addr] = reg[reg_b]
+        mem[mem_addr] = int32(reg[reg_b])
     elif ins == 'beq':
         if reg[reg_a] == reg[reg_b]:
-            state.pc = state.pc + offset_field
+            state.pc = state.pc + int32(offset_field)
 
 def execute_j_type(state, reg_a, reg_b, ins):
     reg = state.reg
 
     if ins == 'jalr':
-        reg[reg_b] = state.pc + 1
+        reg[reg_b] = state.pc + int32(1)
         if reg_a == reg_b:
-            state.pc = state.pc + 1
+            state.pc = state.pc + int32(1)
         else:
-            state.pc = reg[reg_a] - 1
+            state.pc = reg[reg_a] - int32(1)
 
 def sign_extend(num: int):
     # convert a 16-bit number into a 32-bit integer 
