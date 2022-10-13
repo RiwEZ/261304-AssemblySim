@@ -15,8 +15,8 @@ def main():
         print('The path specified does not exist')
         sys.exit()
     
-    compiled_path = path.split('\\')
-    compiled_path = '.\programs\compiled\\' + compiled_path[-1].replace('.s','.bin')
+    head_tail = os.path.split(path)
+    compiled_path = os.path.join(head_tail[0], 'compiled', head_tail[1].replace('.s','.bin'))
     # assembly to machine code
     with open(path, 'r') as f, open(compiled_path, 'w') as f_compiled:
         lines = f.read().splitlines()
