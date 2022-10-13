@@ -24,7 +24,7 @@ class Tokenizer():
         curr_line = self.lines[self.line]
         self.next = ''
 
-        while self.pos >= len(curr_line) or curr_line[self.pos] == ' ':
+        while self.pos >= len(curr_line) or curr_line[self.pos].isspace():
             self.pos += 1
             if self.pos >= len(curr_line):
                 if self.line == len(self.lines) - 1: return
@@ -32,7 +32,7 @@ class Tokenizer():
                 curr_line = self.lines[self.line]
                 self.pos = 0
         
-        while self.pos < len(curr_line) and curr_line[self.pos] != ' ':
+        while self.pos < len(curr_line) and curr_line[self.pos].isspace() == False:
             self.next += curr_line[self.pos]
             self.pos += 1
 
