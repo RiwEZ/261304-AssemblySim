@@ -19,7 +19,7 @@ def is_instruction(w: str):
     return is_R(w) or is_I(w) or is_J(w) or is_O(w)
 
 def is_label(w: str):
-    return w not in reserve and is_int(w) == False
+    return w not in reserve and w[0].isnumeric() == False and is_int(w) == False
 
 def is_int(w: str):
     try:
@@ -86,7 +86,7 @@ class Parser():
             if is_int(v):
                 v = int(v)             
             elif not is_label(v): 
-                raise Exception(f".fill should be followed by <label> or <number> {self.err_info(v)}")
+                raise Exception(f".fill should be followed by <label> or <int> {self.err_info(v)}")
 
             if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
             return Fill(v)
@@ -146,7 +146,7 @@ class Parser():
                 return I_ins(op, int(rs), int(rt), offset, curr_line)
             else: raise Exception(f'Offset field exceed limit {self.err_info(var)}')
         else:
-            raise Exception(f'Somethine went wrong {self.err_info(var)}')
+            raise Exception(f'Somethine went wrong {self.err_info(var)}, invalid label')
 
 
 
