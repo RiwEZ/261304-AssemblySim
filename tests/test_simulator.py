@@ -1,5 +1,4 @@
 import io
-from sys import stdout
 import unittest
 import unittest.mock
 
@@ -18,9 +17,9 @@ class TestSimulator(unittest.TestCase):
     def assert_stdout(self, path, expected_output, mock_stdout):
         com = Simulator()
         com.run_sim(path)
-        stdout = ''.join(mock_stdout.getvalue().split())
+        output = ''.join(mock_stdout.getvalue().split())
         expected_output = ''.join(expected_output.split())        
-        self.assertEqual(stdout, expected_output)
+        self.assertEqual(output, expected_output)
 
     def read_file(self, path):
         with open(path) as f:
