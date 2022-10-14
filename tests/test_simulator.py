@@ -1,4 +1,5 @@
 import io
+from sys import stdout
 import unittest
 import unittest.mock
 
@@ -7,6 +8,7 @@ from simulator.simulator import Simulator
 '''
     UnitTests for Simulator
     asserting equal between the console output and the expected output
+    regardless of whitespaces
     use `python -m unittest discover` command at root to run tests
 '''
 # use python -m unittest discover at root to run tests
@@ -16,7 +18,9 @@ class TestSimulator(unittest.TestCase):
     def assert_stdout(self, path, expected_output, mock_stdout):
         com = Simulator()
         com.run_sim(path)
-        self.assertEqual(mock_stdout.getvalue(), expected_output)
+        stdout = ''.join(mock_stdout.getvalue().split())
+        expected_output = ''.join(expected_output.split())        
+        self.assertEqual(stdout, expected_output)
 
     def read_file(self, path):
         with open(path) as f:
