@@ -15,27 +15,26 @@ from dataclasses import dataclass
 from simulator.instruction import *
 from simulator.int32 import int32
 
+@dataclass
+class State:
+    reg: list[int]
+    mem: list[int]
+    pc: int
+    numMemory: int
+
+    def __init__(self, NUMREGS, NUMMEMORY):
+        self.reg = [int32(0)] * NUMREGS
+        self.mem = [int32(0)] * NUMMEMORY
+        self.pc = int32(0)
+        self.numMemory = int32(0)
+
 class Simulator:
     NUMMEMORY = 65536
     NUMREGS = 8
-    MAXLINELENGTH = 1000
-    
-    @dataclass
-    class State:
-        reg: list[int]
-        mem: list[int]
-        pc: int
-        numMemory: int
-
-        def __init__(self, NUMREGS, NUMMEMORY):
-            self.reg = [int32(0)] * NUMREGS
-            self.mem = [int32(0)] * NUMMEMORY
-            self.pc = int32(0)
-            self.numMemory = int32(0)
-        
+    MAXLINELENGTH = 1000        
 
     def __init__(self):
-        self.state = self.State(self.NUMREGS, self.NUMMEMORY)
+        self.state = State(self.NUMREGS, self.NUMMEMORY)
         self.ins_executed = int32(0)
         
     def print_state(self):

@@ -11,3 +11,7 @@ If you want to run on a specific part:
 
 - Examples on how to use simulator:
 `python .\simulator.py .\tests\files\test_sim_example.bin`
+
+Unit Test:
+This will run all unit tests.
+`python -m unittest discover`
