@@ -17,6 +17,11 @@ def main():
     
     head_tail = os.path.split(path)
     compiled_path = os.path.join(head_tail[0], 'compiled', head_tail[1].replace('.s','.bin'))
+    # check compiled directory exists or not
+    isExist = os.path.exists(os.path.join(head_tail[0], 'compiled'))
+    # create compiled directory for save machine code file
+    if not isExist:
+        os.makedirs(os.path.join(head_tail[0], 'compiled'))
     # assembly to machine code
     with open(path, 'r') as f, open(compiled_path, 'w') as f_compiled:
         lines = f.read().splitlines()
