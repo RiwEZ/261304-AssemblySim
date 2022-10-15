@@ -1,6 +1,6 @@
 class Tokenizer():
     def __init__(self, lines: list[str]):
-        self.lines = [l for l in lines if l != '']
+        self.lines = [l.strip() for l in lines if l.strip() != '']
         self.line = 0
         self.pos = 0
         self.next = ''
