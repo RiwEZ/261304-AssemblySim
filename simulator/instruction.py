@@ -92,9 +92,8 @@ def execute_j_type(state, reg_a, reg_b, ins):
     reg = state.reg
 
     if ins == 'jalr':
-        if reg_b == 0: return
-
-        reg[reg_b] = state.pc + int32(1)
+        if reg_b != 0: 
+            reg[reg_b] = state.pc + int32(1)
         if reg_a == reg_b:
             return
         else:
