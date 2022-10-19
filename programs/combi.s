@@ -3,7 +3,7 @@
 		lw 0 1 n     				// &1 = #5[0]  .40
         lw 0 2 r     				// $2 = #5[1]  .41	
 		lw 0 4 callfn    			// prepare to call 
-		jalr   4  7
+		jalr   4  7                 //call combination(n, r)
 		done    halt                //end of program 		
 addrfn  sw         5   7   2       	//save return address on stack
 		beq  1 2 jif      			//if(n==r)  2if:
@@ -16,7 +16,7 @@ addrfn  sw         5   7   2       	//save return address on stack
 		sw         5   1   0      	//save $1 on stack
 		sw         5   2   1      	//save $2 on stack
 		lw 0 4 callfn           	// prepare to call 
-        jalr 4 7
+        jalr 4 7                    //call combination(n-1, r)
 		lw 0 4 neq1       			//&4  = -1	
 		lw    5   1   0  			// recover original $1
         lw    5   2   1  			// recover original $2	
@@ -24,7 +24,7 @@ addrfn  sw         5   7   2       	//save return address on stack
 		sw         5   1   0      	//save $1 on stack
 		sw         5   2   1      	//save $2 on stack
 		lw 0 4 callfn        		// prepare to call 
-		jalr 4 7	
+		jalr 4 7	                //call combination(n-1, r-1)
 		lw 0 4 neq1        			//&4  = -1	
 		add   5   4   5         	//decrement stack pointer
 		add   5   4   5         	//decrement stack pointer
