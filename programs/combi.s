@@ -1,7 +1,7 @@
-        lw 0 5 sstack   			// stack = 30
-        lw 0 6 one    				//$(6) = 1
-		lw 0 1 n     				// &(1) = #5[0]  .30
-        lw 0 2 r     				// $(2) = #5[1]  .31	
+        lw 0 5 sstack   			// stack = 39
+        lw 0 6 one    				//$6 = 1
+		lw 0 1 n     				// &1 = #5[0]  .40
+        lw 0 2 r     				// $2 = #5[1]  .41	
 		lw 0 4 callfn    			// prepare to call 
 		jalr   4  7
 		done    halt                //end of program 		
@@ -11,21 +11,21 @@ addrfn  sw         5   7   2       	//save return address on stack
 		add        5   6   5        //increment stack pointer
 		add        5   6   5        //increment stack pointer
 		add        5   6   5        //increment stack pointer
-		lw 0 4 neq1        			//&(4)  = -1		
+		lw 0 4 neq1        			//&4  = -1		
 		add 1 4 1 // n-1	
 		sw         5   1   0      	//save $1 on stack
 		sw         5   2   1      	//save $2 on stack
 		lw 0 4 callfn           	// prepare to call 
         jalr 4 7
-		lw 0 4 neq1       			//&(4)  = -1	
+		lw 0 4 neq1       			//&4  = -1	
 		lw    5   1   0  			// recover original $1
         lw    5   2   1  			// recover original $2	
-		add 2 4 2 					// n-1
+		add 2 4 2 					// r-1
 		sw         5   1   0      	//save $1 on stack
 		sw         5   2   1      	//save $2 on stack
 		lw 0 4 callfn        		// prepare to call 
 		jalr 4 7	
-		lw 0 4 neq1        			//&(4)  = -1	
+		lw 0 4 neq1        			//&4  = -1	
 		add   5   4   5         	//decrement stack pointer
 		add   5   4   5         	//decrement stack pointer
 		add   5   4   5         	//decrement stack pointer
