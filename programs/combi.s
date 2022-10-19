@@ -12,7 +12,7 @@ addrfn  sw         5   7   2       	//save return address on stack
 		add        5   6   5        //increment stack pointer
 		add        5   6   5        //increment stack pointer
 		lw 0 4 neq1        			//&4  = -1		
-		add 1 4 1 // n-1	
+		add 1 4 1                   // n-1	
 		sw         5   1   0      	//save $1 on stack
 		sw         5   2   1      	//save $2 on stack
 		lw 0 4 callfn           	// prepare to call 
