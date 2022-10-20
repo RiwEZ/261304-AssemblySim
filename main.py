@@ -4,6 +4,12 @@ import sys
 from assembler.asm_parser import Parser
 from simulator.simulator import Simulator
 
+"""
+Main class.
+Compiles the assembly code and Executes the machine code
+using both Assembler and Simulator modules
+"""
+
 def main():
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument('path', metavar='path', type=str, help='the path to assembly *.s file')
