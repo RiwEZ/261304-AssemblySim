@@ -35,6 +35,26 @@ def is_reg(w: str):
     return False
 
 class Program():
+    """
+    AST class
+
+    Attributes
+    -------
+    statement : list[Statement]
+        list of statements
+
+    var_map: dict[str, int]
+        variable map for fill instruction and label
+
+    Methods
+    -------
+    append(statement: Statement)
+        Add a new statement to the tree
+
+    execute()
+        Evaluates nodes. Returns  a list of machine code
+    """
+
     def __init__(self, var_map: dict[str, int]):
         self.statement: list[Statement] = []
         self.var_map = var_map
@@ -49,7 +69,30 @@ class Program():
         return res
 
 class Parser():
+    """
+    Parser for the input assembly code.
+
+    Attributes
+    -------
+    tk: Tokenizer    
+        A tokenizer with lines of assembly code as input
+    
+    var_map: dict[str, int]
+        variable map for fill instruction and label
+
+    Method
+    -------
+    parse()
+        Parses the assembly code. Returns an AST of the assembly code.
+
+    """
+
     def __init__(self, lines: list[str]):
+        """
+        Args: 
+            lines (list[str]): list of assembly code lines
+        """
+
         self.tk = Tokenizer(lines)
         self.var_map: dict[str, int] = {}
 

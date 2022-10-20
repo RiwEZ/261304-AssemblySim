@@ -1,4 +1,9 @@
 class Tokenizer():
+    """
+    Tokenizer class to tokenize the input assembly code
+
+    """
+
     def __init__(self, lines: list[str]):
         self.lines = [l.strip() for l in lines if l.strip() != '']
         self.line = 0

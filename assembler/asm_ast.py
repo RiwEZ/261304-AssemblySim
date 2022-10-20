@@ -1,5 +1,10 @@
 from abc import ABC, abstractmethod
 
+"""
+Contains classes used to construct an AST of the input assembly code.
+Evaluation returns the machine code.
+"""
+
 class Statement(ABC):
     @abstractmethod
     def evaluate(self, var_map: dict[str, int]):

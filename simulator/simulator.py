@@ -1,4 +1,4 @@
-'''
+"""
     Rules ของ project description
     1) (assembler) outputting the machine-code file.
     2) (assembler) Call exit(1) ถ้า มี errors ใน assembly-language program. Call exit(0) ถ้าทำเสร็จโดยไม่มี errors.
@@ -10,8 +10,7 @@
     8) (multiplication) เก็บ ผลลัพธ์ ใน register 1.
     9) (multiplication) labeled "mcand" และ "mplier" (lower-case) เป็นที่ที่ ตัวเลข 2 ตัว อยู่
    10) (combination) ควรจะรับค่า n และ r จาก Memory ที่ location ที่มี Label เป็น n และ r และ ผลลัพธ์ควรจะเก็บที่  register 3
-'''
-from dataclasses import dataclass
+"""
 from simulator.instruction import *
 from simulator.int32 import int32
 
@@ -29,6 +28,17 @@ class State:
         self.numMemory = int32(0)
 
 class Simulator:
+    """
+    Main simulator used to read machine code, execute the intructions and print state
+
+    ...
+
+    Methods
+    -------
+    run_sim()
+        Reads machine code and runs the program
+    """
+
     NUMMEMORY = 65536
     NUMREGS = 8
     MAXLINELENGTH = 1000        
@@ -37,7 +47,9 @@ class Simulator:
         self.state = State(self.NUMREGS, self.NUMMEMORY)
         self.ins_executed = int32(0)
         
-    def print_state(self):
+    def __print_state(self):
+        # Prints state of the simulator
+
         print('\n@@@\nstate:')
         print('\tpc %d' % self.state.pc)
         print('\tmemory:')
@@ -48,7 +60,9 @@ class Simulator:
             print('\t\treg[ %d ] %d' % (int32(i), int32(self.state.reg[int32(i)])))
         print('end state')
         
-    def read_machinecode(self,path):
+    def __read_machinecode(self,path: str):
+        # Reads machine code from file, save to memory state, and prints out
+
         with open(path) as f:
             lines = f.readlines()
         for line in lines:
@@ -58,16 +72,24 @@ class Simulator:
         print()
         f.close()
         
-    def run_program(self):
+    def __run_program(self):
+        # Main loop, prints state, and executes the machine code
+
         isRunning = True
         while(isRunning):
-            self.print_state()
+            self.__print_state()
             isRunning = execute_instruction(self.state)
             self.state.pc += int32(1)
             self.ins_executed += int32(1)
         print('machine halted\ntotal of %d instructions executed\nfinal state of machine:' % self.ins_executed)
-        self.print_state()
+        self.__print_state()
     
-    def run_sim(self, path):
-        self.read_machinecode(path)
-        self.run_program()
+    def run_sim(self, path : str):
+        """Reads the machine code and executes
+        
+        Args:
+            path (str): Path of the machine code file
+        """
+
+        self.__read_machinecode(path)
+        self.__run_program()
