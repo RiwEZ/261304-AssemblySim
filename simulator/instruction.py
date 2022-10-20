@@ -1,9 +1,15 @@
+from dataclasses import dataclass
 from simulator.int32 import int32
 import warnings
 warnings.filterwarnings("ignore")
 
-def get_opcode(machinecode: int):
-    """get opcode, type format, instruction name from machinecode
+"""Instuction decoded and executer
+
+Decodes the machine code and executes by modifying the input simulator state
+"""
+
+def __decode(machinecode: int):
+    """Gets opcode, type format, instruction name from machine code
 
     Args:
         machinecode (int): machinecode from assembler
@@ -42,9 +48,18 @@ def get_opcode(machinecode: int):
         ins = 'noop'
     return opcode, t_format, ins
 
-def execute_instruction(state):
+def execute_instruction(state: dataclass):
+    """Decodes and executes an instruction based on the input state.
+
+    Args:
+        state (dataclass): simulator state
+
+    Returns:
+        False, if the instruction is Halt. True, otherwise
+    """
+
     machinecode = state.mem[state.pc]
-    opcode, t, ins = get_opcode(machinecode)
+    opcode, t, ins = __decode(machinecode)
     if ins == 'halt':
         return False
 
@@ -54,16 +69,18 @@ def execute_instruction(state):
     match t:
         case 'r':        
             dest_reg = machinecode & 0b0111         # bits 0-2
-            execute_r_type(state, reg_a, reg_b, dest_reg, ins)
+            __execute_r_type(state, reg_a, reg_b, dest_reg, ins)
         case 'i':
             offset_field = machinecode & 0x0FFFF     # bits 0-15
-            execute_i_type(state, reg_a, reg_b, offset_field, ins)
+            __execute_i_type(state, reg_a, reg_b, offset_field, ins)
         case 'j':
-            execute_j_type(state, reg_a, reg_b, ins)
+            __execute_j_type(state, reg_a, reg_b, ins)
 
     return True
 
-def execute_r_type(state, reg_a, reg_b, dest_reg, ins):
+def __execute_r_type(state, reg_a, reg_b, dest_reg, ins):
+    # Execute r type instuctions and modifies state accordingly
+
     if dest_reg == 0: return
 
     reg = state.reg
@@ -72,7 +89,9 @@ def execute_r_type(state, reg_a, reg_b, dest_reg, ins):
     elif ins == 'nand':
         reg[dest_reg] = ~(int32(reg[reg_a]) & int32(reg[reg_b]))
 
-def execute_i_type(state, reg_a, reg_b, offset_field, ins):
+def __execute_i_type(state, reg_a, reg_b, offset_field, ins):
+    # Execute i type instuctions and modifies state accordingly
+
     mem = state.mem
     reg = state.reg
     offset_field = sign_extend(offset_field)
@@ -88,7 +107,9 @@ def execute_i_type(state, reg_a, reg_b, offset_field, ins):
         if reg[reg_a] == reg[reg_b]:
             state.pc = state.pc + int32(offset_field)
 
-def execute_j_type(state, reg_a, reg_b, ins):
+def __execute_j_type(state, reg_a, reg_b, ins):
+    # Execute j type instuctions and modifies state accordingly
+
     reg = state.reg
 
     if ins == 'jalr':
@@ -100,7 +121,15 @@ def execute_j_type(state, reg_a, reg_b, ins):
             state.pc = reg[reg_a] - int32(1)
 
 def sign_extend(num: int):
-    # convert a 16-bit number into a 32-bit integer 
+    """Converts a 16-bit integer to a 64-bit integer
+
+    Args:
+        num (int): integer to convert
+
+    Returns:
+        a converted integer
+    """
+
     if num & (1 << 15):
          num -= (1 << 16)
     return num
