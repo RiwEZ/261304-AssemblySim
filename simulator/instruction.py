@@ -96,8 +96,8 @@ def execute_j_type(state, reg_a, reg_b, ins):
             reg[reg_b] = state.pc + int32(1)
         if reg_a == reg_b:
             return
-        else:
-            state.pc = reg[reg_a] - int32(1)
+        
+        state.pc = reg[reg_a] - int32(1)
 
 def sign_extend(num: int):
     # convert a 16-bit number into a 32-bit integer 
