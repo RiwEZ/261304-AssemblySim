@@ -1,3 +1,4 @@
+from re import L
 from assembler.asm_ast import *
 from assembler.tokenizer import Tokenizer
 
@@ -33,6 +34,12 @@ def is_reg(w: str):
         v = int(w)
         return v >= 0 and v <= 7
     return False
+
+def add_var_count(label: str, var_count: dict[str, int]):
+    if label in var_count:
+        var_count[label] += 1
+    else:
+        var_count[label] = 1
 
 class Program():
     """
@@ -95,6 +102,7 @@ class Parser():
 
         self.tk = Tokenizer(lines)
         self.var_map: dict[str, int] = {}
+        self.var_count: dict[str, int] = dict()
 
     def err_info(self, w):
         return 'at' + self.tk.get_info(w)
@@ -109,6 +117,16 @@ class Parser():
 
         if self.tk.has_next():
             raise Exception(f"Something went wrong {self.err_info(self.tk.peek())}")
+
+        label_not_used = False
+        for k, v in self.var_count.items():
+            if v == 1:
+                label_not_used = True
+                print(f"Label \x1b[0;30;43m {k} \x1b[0m is not used.")
+        if label_not_used:
+            print("-----------------------------")
+        
+
         return program
 
     # statement -> label cmd [*]'\n'
@@ -122,13 +140,16 @@ class Parser():
             if len(label) > 6: raise Exception(f'Label length should not exceeds 6 {self.err_info(label)}')
             if label in self.var_map.keys(): raise Exception(f"Duplicated label {self.err_info(label)}")
             self.var_map[label] = curr_line # pre set label value for cmd label
-   
+            add_var_count(label, self.var_count)   
+
         if self.tk.peek() == '.fill':
             self.tk.consume()
             v = self.tk.consume()
             if is_int(v):
-                v = int(v)             
-            elif not is_label(v): 
+                v = int(v)
+            elif is_label(v):
+                add_var_count(v, self.var_count)   
+            else: 
                 raise Exception(f".fill should be followed by <label> or <int> {self.err_info(v)}")
 
             if self.tk.line == curr_line: self.tk.consume_line() # ignore comment
@@ -181,6 +202,7 @@ class Parser():
         var = self.tk.consume() 
         
         if is_label(var):
+            add_var_count(var, self.var_count)   
             return I_ins(op, int(rs), int(rt), var, curr_line)
         elif is_int(var):
             v = int(var)
@@ -190,8 +212,6 @@ class Parser():
             else: raise Exception(f'Offset field exceed limit {self.err_info(var)}')
         else:
             raise Exception(f'Somethine went wrong {self.err_info(var)}, invalid label')
-
-
 
     # J -> jalr <reg> <reg>
     def parse_J(self):
